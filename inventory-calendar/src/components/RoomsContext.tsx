@@ -11,6 +11,8 @@ export interface PlanTemplate {
 export interface RoomTemplate {
   name: string;
   plans: PlanTemplate[];
+  roomCount: number;
+  maxGuests: number;
 }
 
 function makeDetails(name: string, mealType: string, basePrice: number): RatePlanDetails {
@@ -33,18 +35,76 @@ function makePlan(name: string, mealType: string, basePrice: number): PlanTempla
 }
 
 const INITIAL_ROOMS: RoomTemplate[] = [
-  { name: 'Single Room', plans: [makePlan('EP', 'Room only', 4999), makePlan('MAP', 'FREE breakfast and lunch', 3322)] },
-  { name: 'Double room', plans: [makePlan('EP', 'Room only', 5499), makePlan('MAP', 'FREE breakfast and lunch', 6999)] },
-  { name: 'Double room', plans: [makePlan('EP', 'Room only', 5499), makePlan('MAP', 'FREE breakfast and lunch', 6999)] },
-  { name: 'Family room', plans: [makePlan('EP', 'Room only', 7999), makePlan('MAP', 'FREE breakfast and lunch', 9999)] },
-  { name: 'Queen room', plans: [makePlan('EP', 'Room only', 8999), makePlan('MAP', 'FREE breakfast and lunch', 10999)] },
-  { name: 'Master Suite', plans: [makePlan('EP', 'Room only', 14999), makePlan('MAP', 'FREE breakfast and lunch', 18999)] },
+  {
+    name: 'Deluxe Room',
+    roomCount: 2,
+    maxGuests: 3,
+    plans: [
+      makePlan('EP', 'Room only', 4999),
+      makePlan('CP', 'Continental breakfast', 5999),
+      makePlan('MAP', 'Breakfast and dinner', 7999),
+      makePlan('Half board', 'Breakfast and one meal', 8999),
+      makePlan('Full board', 'All meals included', 10999),
+    ],
+  },
+  {
+    name: 'Superior Suite',
+    roomCount: 2,
+    maxGuests: 3,
+    plans: [
+      makePlan('EP', 'Room only', 6999),
+      makePlan('CP', 'Continental breakfast', 7999),
+      makePlan('MAP', 'Breakfast and dinner', 9999),
+      makePlan('MAP', 'Breakfast and dinner', 10999),
+      makePlan('MAP', 'Breakfast and dinner', 11999),
+    ],
+  },
+  {
+    name: 'Family Suite',
+    roomCount: 2,
+    maxGuests: 4,
+    plans: [
+      makePlan('EP', 'Room only', 7999),
+      makePlan('CP', 'Continental breakfast', 8999),
+      makePlan('MAP', 'Breakfast and dinner', 10999),
+      makePlan('MAP', 'Breakfast and dinner', 11999),
+      makePlan('MAP', 'Breakfast and dinner', 12999),
+    ],
+  },
+  {
+    name: 'Executive Room',
+    roomCount: 2,
+    maxGuests: 3,
+    plans: [
+      makePlan('EP', 'Room only', 8999),
+      makePlan('CP', 'Continental breakfast', 9999),
+      makePlan('MAP', 'Breakfast and dinner', 11999),
+      makePlan('MAP', 'Breakfast and dinner', 12999),
+      makePlan('MAP', 'Breakfast and dinner', 13999),
+    ],
+  },
+  {
+    name: 'Honeymoon Suite',
+    roomCount: 2,
+    maxGuests: 3,
+    plans: [
+      makePlan('EP', 'Room only', 14999),
+      makePlan('CP', 'Continental breakfast', 15999),
+      makePlan('MAP', 'Breakfast and dinner', 18999),
+      makePlan('MAP', 'Breakfast and dinner', 19999),
+      makePlan('MAP', 'Breakfast and dinner', 20999),
+    ],
+  },
 ];
 
 interface RoomsContextValue {
   roomTemplates: RoomTemplate[];
   updatePlanDetails: (roomIdx: number, planIdx: number, updated: RatePlanDetails) => void;
   deletePlan: (roomIdx: number, planIdx: number) => void;
+  addRoom: (room: RoomTemplate) => void;
+  deleteRoom: (roomIdx: number) => void;
+  addPlan: (roomIdx: number, plan: PlanTemplate) => void;
+  updateRoom: (roomIdx: number, updated: Partial<Pick<RoomTemplate, 'name' | 'roomCount' | 'maxGuests'>>) => void;
 }
 
 const RoomsContext = createContext<RoomsContextValue | null>(null);
@@ -86,8 +146,37 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const addRoom = useCallback((room: RoomTemplate) => {
+    setRoomTemplates((prev) => [...prev, room]);
+  }, []);
+
+  const deleteRoom = useCallback((roomIdx: number) => {
+    setRoomTemplates((prev) => prev.filter((_, i) => i !== roomIdx));
+  }, []);
+
+  const addPlan = useCallback((roomIdx: number, plan: PlanTemplate) => {
+    setRoomTemplates((prev) => {
+      const next = [...prev];
+      const room = { ...next[roomIdx] };
+      room.plans = [...room.plans, plan];
+      next[roomIdx] = room;
+      return next;
+    });
+  }, []);
+
+  const updateRoom = useCallback(
+    (roomIdx: number, updated: Partial<Pick<RoomTemplate, 'name' | 'roomCount' | 'maxGuests'>>) => {
+      setRoomTemplates((prev) => {
+        const next = [...prev];
+        next[roomIdx] = { ...next[roomIdx], ...updated };
+        return next;
+      });
+    },
+    [],
+  );
+
   return (
-    <RoomsContext.Provider value={{ roomTemplates, updatePlanDetails, deletePlan }}>
+    <RoomsContext.Provider value={{ roomTemplates, updatePlanDetails, deletePlan, addRoom, deleteRoom, addPlan, updateRoom }}>
       {children}
     </RoomsContext.Provider>
   );

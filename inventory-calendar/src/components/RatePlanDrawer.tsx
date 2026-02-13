@@ -18,6 +18,7 @@ interface RatePlanDrawerProps {
   onClose: () => void;
   onUpdate: (updated: RatePlanDetails) => void;
   onDelete: () => void;
+  isNew?: boolean;
 }
 
 function EditIcon() {
@@ -113,8 +114,9 @@ export default function RatePlanDrawer({
   onClose,
   onUpdate,
   onDelete,
+  isNew = false,
 }: RatePlanDrawerProps) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(isNew);
   const [draft, setDraft] = useState<RatePlanDetails>({ ...plan });
   const [confirmDelete, setConfirmDelete] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -122,9 +124,9 @@ export default function RatePlanDrawer({
   // Sync draft when plan changes
   useEffect(() => {
     setDraft({ ...plan });
-    setEditing(false);
+    setEditing(isNew);
     setConfirmDelete(false);
-  }, [plan]);
+  }, [plan, isNew]);
 
   const handleSave = useCallback(() => {
     onUpdate(draft);
@@ -132,9 +134,13 @@ export default function RatePlanDrawer({
   }, [draft, onUpdate]);
 
   const handleCancel = useCallback(() => {
-    setDraft({ ...plan });
-    setEditing(false);
-  }, [plan]);
+    if (isNew) {
+      onClose();
+    } else {
+      setDraft({ ...plan });
+      setEditing(false);
+    }
+  }, [plan, isNew, onClose]);
 
   const handleToggleActive = useCallback(() => {
     const updated = { ...plan, active: !plan.active };
@@ -177,7 +183,7 @@ export default function RatePlanDrawer({
         {/* Header */}
         <div className="flex items-start justify-between p-8 pb-0">
           <h2 className="text-[28px] font-semibold text-text-high leading-9">
-            Rate plan details
+            {isNew ? 'New rate plan' : 'Rate plan details'}
           </h2>
           <button
             onClick={onClose}
@@ -188,7 +194,7 @@ export default function RatePlanDrawer({
         </div>
 
         {/* Inactive badge */}
-        {!plan.active && (
+        {!isNew && !plan.active && (
           <div className="mx-8 mt-4 px-3 py-1.5 bg-red-50 text-red-600 text-sm rounded-lg w-fit">
             Deactivated
           </div>
@@ -280,7 +286,7 @@ export default function RatePlanDrawer({
                   onClick={handleSave}
                   className="flex-1 flex items-center justify-center gap-2 h-[44px] bg-blue-400 text-white text-sm rounded-xl hover:bg-blue-500 transition-colors"
                 >
-                  Save
+                  {isNew ? 'Create' : 'Save'}
                 </button>
                 <button
                   onClick={handleCancel}
@@ -327,7 +333,7 @@ export default function RatePlanDrawer({
             onClick={editing ? handleSave : onClose}
             className="w-full h-[52px] bg-[#e34700] text-white text-base rounded-[10px] hover:bg-[#cc3f00] transition-colors"
           >
-            {editing ? 'Save changes' : 'Understood'}
+            {editing ? (isNew ? 'Create rate plan' : 'Save changes') : 'Understood'}
           </button>
         </div>
       </div>
