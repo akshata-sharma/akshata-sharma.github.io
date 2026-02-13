@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Header from './components/Header';
 import Sidebar, { type Page } from './components/Sidebar';
 import InventoryCalendar from './components/InventoryCalendar';
-import RatePlansPage from './components/RatePlansPage';
+import RoomsAndRatePlansPage from './components/RoomsAndRatePlansPage';
 import { RoomsProvider } from './components/RoomsContext';
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
         <Header />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar activePage={activePage} onNavigate={setActivePage} />
-          {activePage === 'calendar' ? <InventoryCalendar /> : <RatePlansPage />}
+          {activePage === 'calendar' ? <InventoryCalendar /> : <RoomsAndRatePlansPage />}
         </div>
       </div>
     </RoomsProvider>

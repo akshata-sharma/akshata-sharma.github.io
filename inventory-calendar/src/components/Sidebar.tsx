@@ -10,7 +10,7 @@ import {
   PromotionsIcon,
   CalendarIcon,
   CalendarViewIcon,
-  RatePlansIcon,
+  RoomsIcon,
   PhoneIcon,
   EmailIcon,
 } from './Icons';
@@ -97,7 +97,7 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
                   <CalendarViewIcon />
                 </span>
                 <span className={`flex-1 text-sm ${activePage === 'calendar' ? 'text-blue-400' : 'text-text-low'}`}>
-                  Inventory calendar
+                  Calendar view
                 </span>
               </button>
               <button
@@ -109,10 +109,10 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
                 }`}
               >
                 <span className={activePage === 'ratePlans' ? 'text-blue-400' : 'text-text-low'}>
-                  <RatePlansIcon />
+                  <RoomsIcon />
                 </span>
                 <span className={`flex-1 text-sm ${activePage === 'ratePlans' ? 'text-blue-400' : 'text-text-low'}`}>
-                  Rate plans
+                  Rooms and Rate plans
                 </span>
               </button>
             </>

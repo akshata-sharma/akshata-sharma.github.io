@@ -7,6 +7,7 @@ import { useRooms } from './RoomsContext';
 interface RoomInventory {
   available: number;
   sold: number;
+  blocked: boolean;
 }
 
 interface CalendarRatePlan {
@@ -50,6 +51,7 @@ function generateInventory(weekStart: Date, roomIndex: number): RoomInventory[] 
     result.push({
       available: Math.floor(seededRand(seed) * 130),
       sold: Math.floor(seededRand(seed + 1) * 100),
+      blocked: seededRand(seed + 2) < 0.17,
     });
   }
   return result;
@@ -77,10 +79,12 @@ function EditableCell({
   value,
   onChange,
   displayFormat = 'number',
+  disabled = false,
 }: {
   value: number;
   onChange: (v: number) => void;
   displayFormat?: 'number' | 'price';
+  disabled?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(value));
@@ -107,6 +111,12 @@ function EditableCell({
     }
   }, [draft, onChange, value]);
 
+  const display = displayFormat === 'price' ? formatPrice(value) : String(value);
+
+  if (disabled) {
+    return <span className="text-text-low px-1 py-0.5">{display}</span>;
+  }
+
   if (editing) {
     return (
       <input
@@ -127,8 +137,6 @@ function EditableCell({
       />
     );
   }
-
-  const display = displayFormat === 'price' ? formatPrice(value) : String(value);
 
   return (
     <span
@@ -275,7 +283,12 @@ export default function InventoryCalendar() {
         <h1 className="text-[28px] font-semibold text-text-high leading-9">
           Inventory calendar
         </h1>
-        <div ref={navRef} className="relative">
+        <div className="flex items-center gap-5">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded blocked-legend-swatch border border-border-medium" />
+            <span className="text-xs text-text-low">Blocked for selling</span>
+          </div>
+          <div ref={navRef} className="relative">
           <div className="bg-grey-200 flex gap-3 items-center justify-center px-4 py-2.5 rounded-xl">
             <button onClick={goToPrevWeek} className="text-text-low hover:text-text-high transition-colors">
               <ChevronLeft />
@@ -294,6 +307,7 @@ export default function InventoryCalendar() {
               onClose={() => setShowDatePicker(false)}
             />
           )}
+        </div>
         </div>
       </div>
 
@@ -377,14 +391,17 @@ export default function InventoryCalendar() {
                   {room.inventory.map((inv, colIdx) => (
                     <div
                       key={colIdx}
-                      className="flex-1 flex flex-col gap-0.5 items-center p-3 bg-surface-white border-r border-border-medium last:border-r-0 text-center"
+                      className={`flex-1 flex flex-col gap-0.5 items-center p-3 border-r border-border-medium last:border-r-0 text-center ${
+                        inv.blocked ? 'blocked-cell' : 'bg-surface-white'
+                      }`}
+                      title={inv.blocked ? 'Blocked for selling' : undefined}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <span className="text-xl text-text-high leading-7">
-                        <EditableCell value={inv.available} onChange={(v) => updateInventory(rowIdx, colIdx, 'available', v)} />
+                      <span className={`text-xl leading-7 ${inv.blocked ? 'text-text-low' : 'text-text-high'}`}>
+                        <EditableCell value={inv.available} onChange={(v) => updateInventory(rowIdx, colIdx, 'available', v)} disabled={inv.blocked} />
                       </span>
                       <span className="text-sm text-text-low leading-5">
-                        <EditableCell value={inv.sold} onChange={(v) => updateInventory(rowIdx, colIdx, 'sold', v)} /> sold
+                        <EditableCell value={inv.sold} onChange={(v) => updateInventory(rowIdx, colIdx, 'sold', v)} disabled={inv.blocked} /> sold
                       </span>
                     </div>
                   ))}
@@ -395,14 +412,20 @@ export default function InventoryCalendar() {
                       key={planIdx}
                       className={`flex items-center pr-px mt-[-1px] ${!plan.details.active ? 'opacity-40' : ''}`}
                     >
-                      {plan.prices.map((price, dayIdx) => (
-                        <div
-                          key={dayIdx}
-                          className="flex-1 flex items-center justify-center p-3 bg-bg-light-grey border border-border-medium mr-[-1px] text-center text-sm text-text-high"
-                        >
-                          <EditableCell value={price} onChange={(v) => updateRatePrice(rowIdx, planIdx, dayIdx, v)} displayFormat="price" />
-                        </div>
-                      ))}
+                      {plan.prices.map((price, dayIdx) => {
+                        const dayBlocked = room.inventory[dayIdx].blocked;
+                        return (
+                          <div
+                            key={dayIdx}
+                            className={`flex-1 flex items-center justify-center p-3 border border-border-medium mr-[-1px] text-center text-sm ${
+                              dayBlocked ? 'blocked-cell text-text-low' : 'bg-bg-light-grey text-text-high'
+                            }`}
+                            title={dayBlocked ? 'Blocked for selling' : undefined}
+                          >
+                            <EditableCell value={price} onChange={(v) => updateRatePrice(rowIdx, planIdx, dayIdx, v)} displayFormat="price" disabled={dayBlocked} />
+                          </div>
+                        );
+                      })}
                     </div>
                   ))}
               </div>

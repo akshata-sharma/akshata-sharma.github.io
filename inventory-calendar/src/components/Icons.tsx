@@ -175,3 +175,50 @@ export function EmailIcon() {
     </svg>
   );
 }
+
+export function PlusIcon({ className }: { className?: string }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M10 4V16" />
+      <path d="M4 10H16" />
+    </svg>
+  );
+}
+
+export function MoreVerticalIcon({ className }: { className?: string }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" className={className}>
+      <circle cx="10" cy="5" r="1.5" />
+      <circle cx="10" cy="10" r="1.5" />
+      <circle cx="10" cy="15" r="1.5" />
+    </svg>
+  );
+}
+
+export function EditPencilIcon({ className }: { className?: string }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M14.166 2.5A2.357 2.357 0 0 1 17.5 5.834L6.667 16.667 2.5 17.5l.833-4.167L14.166 2.5Z" />
+    </svg>
+  );
+}
+
+export function TrashIcon({ className }: { className?: string }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M2.5 5H17.5" />
+      <path d="M6.667 5V3.333A.833.833 0 0 1 7.5 2.5H12.5a.833.833 0 0 1 .833.833V5" />
+      <path d="M15.833 5v11.667a1.667 1.667 0 0 1-1.666 1.666H5.833a1.667 1.667 0 0 1-1.666-1.666V5" />
+    </svg>
+  );
+}
+
+export function RoomsIcon({ className }: { className?: string }) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 10H21" />
+      <path d="M9 4V20" />
+    </svg>
+  );
+}
